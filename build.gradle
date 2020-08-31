@@ -1,0 +1,66 @@
+plugins {
+	id 'org.springframework.boot' version '2.3.3.RELEASE'
+	id 'io.spring.dependency-management' version '1.0.10.RELEASE'
+	id 'java'
+	id 'com.google.cloud.tools.jib' version '2.5.0'
+}
+
+group = 'idv'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '11'
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+	testCompileOnly {
+		extendsFrom testAnnotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	//implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-data-r2dbc'
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	//implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+	implementation 'org.springdoc:springdoc-openapi-webflux-ui:1.4.4'
+
+	// To fix: class file for javax.annotation.meta.When not found
+	implementation 'com.google.code.findbugs:jsr305:3.0.2'
+
+	compileOnly 'org.projectlombok:lombok'
+
+	runtimeOnly 'mysql:mysql-connector-java'
+	runtimeOnly 'dev.miku:r2dbc-mysql'
+	//runtimeOnly 'org.postgresql:postgresql'
+	//runtimeOnly 'io.r2dbc:r2dbc-postgresql'
+
+	annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+	annotationProcessor 'org.projectlombok:lombok'
+	testAnnotationProcessor 'org.projectlombok:lombok'
+	testImplementation('org.springframework.boot:spring-boot-starter-test') {
+		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+	}
+	testImplementation 'io.projectreactor:reactor-test'
+	testImplementation 'org.springframework.security:spring-security-test'
+}
+
+test {
+	useJUnitPlatform()
+}
+
+jib {
+	from {
+		image = 'gcr.io/distroless/java:11'
+	}
+	to {
+		image = 'food-delivery'
+	}
+}

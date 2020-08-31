@@ -1,0 +1,1082 @@
+openapi: 3.0.1
+info:
+  title: OpenAPI definition
+  version: v0
+servers:
+- url: http://localhost:8080
+  description: Generated server url
+tags:
+- name: User
+  description: The User APIs
+- name: Restaurant
+  description: The Restaurant APIs
+- name: OpenHours
+  description: The Open Hours APIs
+- name: Menu
+  description: The Menu APIs
+- name: Purchase
+  description: The Purchase APIs
+paths:
+  /:
+    get:
+      tags:
+      - home-controller
+      operationId: index
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: string
+  /purchases:
+    post:
+      tags:
+      - Purchase
+      summary: Purchase a dish from a restaurant
+      operationId: purchaseDish
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Purchase'
+        required: true
+      responses:
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppError'
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PurchaseHistory'
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppError'
+  /transactions/top-users:
+    get:
+      tags:
+      - Purchase
+      summary: Find top x users by total transaction amount within a date range
+      operationId: findTopTxUsers
+      parameters:
+      - name: top
+        in: query
+        description: "The specified top x (min = 1, max = 1000)"
+        required: false
+        schema:
+          maximum: 1000
+          minimum: 1
+          type: integer
+          format: int32
+          default: 10
+      - name: fromDate
+        in: query
+        description: "The specified start date (format is MM/dd/yyyy), eg: 12/25/2019"
+        required: true
+        schema:
+          type: string
+          format: date
+      - name: toDate
+        in: query
+        description: "The specified end date (format is MM/dd/yyyy), eg: 02/14/2020"
+        required: true
+        schema:
+          type: string
+          format: date
+      responses:
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppError'
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserTxAmount'
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppError'
+  /transactions/sum:
+    get:
+      tags:
+      - Purchase
+      summary: Find total number and dollar value of transactions that happened within
+        a date range
+      operationId: findTxNumbAmount
+      parameters:
+      - name: fromDate
+        in: query
+        description: "The specified start date (format is MM/dd/yyyy), eg: 12/25/2019"
+        required: true
+        schema:
+          type: string
+          format: date
+      - name: toDate
+        in: query
+        description: "The specified end date (format is MM/dd/yyyy), eg: 02/14/2020"
+        required: true
+        schema:
+          type: string
+          format: date
+      responses:
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppError'
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppError'
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TxNumbAmount'
+  /transactions/max-restaurants:
+    get:
+      tags:
+      - Purchase
+      summary: "Find most popular restaurants by transaction volume, either by number\
+        \ of transactions or transaction dollar value"
+      operationId: findMaxTxRestaurants
+      parameters:
+      - name: byAmount
+        in: query
+        description: To indicate it's calculated by transaction amount or number of
+          transactions
+        required: false
+        schema:
+          type: boolean
+          default: false
+      responses:
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppError'
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RestaurantTxAmount'
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppError'
+  /transactions/user-count:
+    get:
+      tags:
+      - Purchase
+      summary: Find total number of users who made transactions above or below $v
+        within a date range
+      operationId: getUserCount
+      parameters:
+      - name: amount
+        in: query
+        description: The specified transaction amount
+        required: true
+        schema:
+          minimum: 0
+          type: number
+      - name: fromDate
+        in: query
+        description: "The specified start date (format is MM/dd/yyyy), eg: 12/25/2019"
+        required: true
+        schema:
+          type: string
+          format: date
+      - name: toDate
+        in: query
+        description: "The specified end date (format is MM/dd/yyyy), eg: 02/14/2020"
+        required: true
+        schema:
+          type: string
+          format: date
+      - name: lessThan
+        in: query
+        description: To indicate less or more than the specified transaction amount
+        required: false
+        schema:
+          type: boolean
+          default: false
+      responses:
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppError'
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Count'
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppError'
+  /menus:
+    put:
+      tags:
+      - Menu
+      summary: "Edit dish name, dish price of menu"
+      operationId: updateMenu
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditMenu'
+        required: true
+      responses:
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppError'
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Menu'
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppError'
+  /menus/findByPrice:
+    get:
+      tags:
+      - Menu
+      summary: "List all dishes that are within a price range, sorted by price or\
+        \ alphabetically"
+      operationId: findMenusWithinPrices
+      parameters:
+      - name: maxPrice
+        in: query
+        description: Max dish price (min = 1.0)
+        required: true
+        schema:
+          minimum: 1
+          type: number
+      - name: minPrice
+        in: query
+        description: Min dish price
+        required: false
+        schema:
+          type: number
+          default: 0
+      - name: sortByPrice
+        in: query
+        description: Sorted by price or dish name
+        required: false
+        schema:
+          type: boolean
+          default: true
+      responses:
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppError'
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Menu'
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppError'
+  /menus/findByDishName:
+    get:
+      tags:
+      - Menu
+      summary: Search dishes by dish name
+      operationId: findMenusByDishName
+      parameters:
+      - name: dishName
+        in: query
+        description: The specified dish name
+        required: true
+        schema:
+          type: string
+      responses:
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppError'
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Menu'
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppError'
+  /open-hours:
+    get:
+      tags:
+      - OpenHours
+      summary: Find open hours by pagination
+      operationId: findOpenHours
+      parameters:
+      - name: page
+        in: query
+        description: "The specified page, start from `0`"
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 0
+      - name: size
+        in: query
+        description: The number of records in the page
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 10
+      responses:
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppError'
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OpenHours'
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppError'
+  /open-hours/findByTime:
+    get:
+      tags:
+      - OpenHours
+      summary: Find open hours by time
+      operationId: findOpenHoursByTime
+      parameters:
+      - name: time
+        in: query
+        description: "The specified time (format is HH:mm), eg: 18:30"
+        required: true
+        schema:
+          type: string
+      - name: dayOfWeek
+        in: query
+        description: "A day of week (Sun = 0, Sat = 6)"
+        required: false
+        schema:
+          maximum: 6
+          minimum: 0
+          type: integer
+          format: int32
+      responses:
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppError'
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OpenHours'
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppError'
+  /open-hours/findByRestaurant:
+    get:
+      tags:
+      - OpenHours
+      summary: Find open hours by restaurant ID
+      operationId: findOpenHoursByRestaurant
+      parameters:
+      - name: restaurantId
+        in: query
+        description: The specified restaurant ID
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppError'
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OpenHours'
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppError'
+  /restaurants:
+    get:
+      tags:
+      - Restaurant
+      summary: Find restaurants by pagination
+      operationId: findRestaurants
+      parameters:
+      - name: page
+        in: query
+        description: The specified page
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 0
+      - name: size
+        in: query
+        description: The number of records in the page
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 10
+      responses:
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppError'
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Restaurant'
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppError'
+    put:
+      tags:
+      - Restaurant
+      summary: Edit restaurant name
+      operationId: updateRestaurant
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditRestaurant'
+        required: true
+      responses:
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppError'
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Restaurant'
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppError'
+  /restaurants/findByTime:
+    get:
+      tags:
+      - Restaurant
+      summary: List all restaurants that are open at a certain time on a day of the
+        week
+      operationId: findRestaurantsByTime
+      parameters:
+      - name: time
+        in: query
+        description: "The specified open time (format is HH:mm), eg: 18:30"
+        required: true
+        schema:
+          type: string
+      - name: dayOfWeek
+        in: query
+        description: "A day of week (Sun = 0, Sat = 6)"
+        required: false
+        schema:
+          maximum: 6
+          minimum: 0
+          type: integer
+          format: int32
+      responses:
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppError'
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RestaurantInfo'
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppError'
+  /restaurants/findByOpenHours:
+    get:
+      tags:
+      - Restaurant
+      summary: List all restaurants that are open for more or less than x hours per
+        day or week
+      operationId: findRestaurantsByOpenPeriod
+      parameters:
+      - name: openHours
+        in: query
+        description: "The specified open hours (min = 1, max = 24)"
+        required: true
+        schema:
+          minimum: 1
+          type: integer
+          format: int32
+      - name: lessThan
+        in: query
+        description: To indicate less or more than the specified open hours
+        required: false
+        schema:
+          type: boolean
+          default: false
+      - name: perWeek
+        in: query
+        description: To indicate per week or per day
+        required: false
+        schema:
+          type: boolean
+          default: false
+      responses:
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppError'
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RestaurantInfo'
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppError'
+  /restaurants/findByDishNumb:
+    get:
+      tags:
+      - Restaurant
+      summary: List all restaurants that have more or less than x number of dishes
+        within a price range
+      operationId: findRestaurantsByDishNumb
+      parameters:
+      - name: dishNumb
+        in: query
+        description: "The specified dish number (min = 1, max = 1000)"
+        required: true
+        schema:
+          maximum: 1000
+          minimum: 1
+          type: integer
+          format: int32
+      - name: lessThan
+        in: query
+        description: To indicate less or more than the specified dish number
+        required: false
+        schema:
+          type: boolean
+          default: false
+      - name: maxPrice
+        in: query
+        description: Max dish price
+        required: false
+        schema:
+          type: number
+      - name: minPrice
+        in: query
+        description: Min dish price
+        required: false
+        schema:
+          type: number
+      responses:
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppError'
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RestaurantInfo'
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppError'
+  /restaurants/findByName:
+    get:
+      tags:
+      - Restaurant
+      summary: Search restaurants by name
+      operationId: findRestaurantsByName
+      parameters:
+      - name: name
+        in: query
+        description: The specified restaurant name
+        required: true
+        schema:
+          type: string
+      responses:
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppError'
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RestaurantInfo'
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppError'
+  /favourites:
+    get:
+      tags:
+      - favourite-controller
+      operationId: findFavourites
+      parameters:
+      - name: userId
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Favourite'
+    post:
+      tags:
+      - favourite-controller
+      operationId: addFavourite
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddFavourite'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Favourite'
+  /favourites/{favouriteId}:
+    delete:
+      tags:
+      - favourite-controller
+      operationId: removeFavourite
+      parameters:
+      - name: favouriteId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+  /users:
+    get:
+      tags:
+      - User
+      summary: Find users by pagination
+      operationId: findUsers
+      parameters:
+      - name: page
+        in: query
+        description: The specified page
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 0
+      - name: size
+        in: query
+        description: The number of records in the page
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 10
+      responses:
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppError'
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppError'
+    put:
+      tags:
+      - User
+      summary: Edit user name
+      operationId: updateUser
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditUser'
+        required: true
+      responses:
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppError'
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppError'
+components:
+  schemas:
+    Purchase:
+      required:
+      - menuId
+      type: object
+      properties:
+        userId:
+          type: integer
+          format: int64
+        menuId:
+          type: integer
+          format: int64
+    AppError:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        status:
+          type: integer
+          format: int32
+        msg:
+          type: string
+    PurchaseHistory:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        userId:
+          type: integer
+          format: int64
+        restaurantId:
+          type: integer
+          format: int64
+        restaurantName:
+          type: string
+        menuId:
+          type: integer
+          format: int64
+        dishName:
+          type: string
+        transactionAmount:
+          type: number
+        transactionDate:
+          type: string
+          format: date-time
+    UserTxAmount:
+      type: object
+      properties:
+        userId:
+          type: integer
+          format: int64
+        userName:
+          type: string
+        txAmount:
+          type: number
+    TxNumbAmount:
+      type: object
+      properties:
+        txAmount:
+          type: number
+        txNumb:
+          type: integer
+          format: int64
+    RestaurantTxAmount:
+      type: object
+      properties:
+        restaurantId:
+          type: integer
+          format: int64
+        restaurantName:
+          type: string
+        txAmount:
+          type: number
+        txNumb:
+          type: integer
+          format: int64
+    Count:
+      type: object
+      properties:
+        numb:
+          type: integer
+          format: int64
+    EditMenu:
+      required:
+      - dishName
+      type: object
+      properties:
+        menuId:
+          type: integer
+          format: int64
+        dishName:
+          maxLength: 500
+          minLength: 0
+          type: string
+        price:
+          minimum: 0.0
+          exclusiveMinimum: false
+          type: number
+    Menu:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        restaurantId:
+          type: integer
+          format: int64
+        restaurantName:
+          type: string
+        dishName:
+          type: string
+        price:
+          type: number
+    OpenHours:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        restaurantId:
+          type: integer
+          format: int64
+        restaurantName:
+          type: string
+        dayOfWeek:
+          type: integer
+          format: int32
+        openPeriod:
+          type: integer
+          format: int32
+        openHour:
+          type: string
+        closedHour:
+          type: string
+    Restaurant:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        cashBalance:
+          type: number
+    EditRestaurant:
+      required:
+      - restaurantName
+      type: object
+      properties:
+        restaurantId:
+          type: integer
+          format: int64
+        restaurantName:
+          maxLength: 128
+          minLength: 0
+          type: string
+    RestaurantInfo:
+      type: object
+      properties:
+        restaurantId:
+          type: integer
+          format: int64
+        restaurantName:
+          type: string
+    Favourite:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        userId:
+          type: integer
+          format: int64
+        restaurant:
+          $ref: '#/components/schemas/Restaurant'
+    AddFavourite:
+      type: object
+      properties:
+        userId:
+          type: integer
+          format: int64
+        restaurantId:
+          type: integer
+          format: int64
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        cashBalance:
+          type: number
+    EditUser:
+      required:
+      - userName
+      type: object
+      properties:
+        userId:
+          type: integer
+          format: int64
+        userName:
+          maxLength: 128
+          minLength: 0
+          type: string

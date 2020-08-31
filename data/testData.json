@@ -1,0 +1,120 @@
+[
+  {
+    "cashBalance": 3593.55,
+    "menu": [
+      {
+        "dishName": "Strained Ox-Tail in Cup",
+        "price": 12.32
+      },
+      {
+        "dishName": "Zeltinger [Moselle Wine]",
+        "price": 11.5
+      },
+      {
+        "dishName": "Obatzter Käse",
+        "price": 10.45
+      },
+      {
+        "dishName": "Loaf of Warm French Bread and Ricotta Spread",
+        "price": 11.04
+      },
+      {
+        "dishName": "Creamed Crabmeat on Toast",
+        "price": 10.9
+      },
+      {
+        "dishName": "3 Spiegeleier mit Bratkartoffelln*",
+        "price": 11.99
+      },
+      {
+        "dishName": "Chicken Chambertin",
+        "price": 11.88
+      },
+      {
+        "dishName": "Ochsenrippe und Ochsenrücken mit verschiedenen Gemüsen",
+        "price": 10.76
+      },
+      {
+        "dishName": "Salat.",
+        "price": 13.66
+      },
+      {
+        "dishName": "紅油抄手",
+        "price": 13.5
+      },
+      {
+        "dishName": "CHICKEN A LA KING with Melba Toast and New Peas",
+        "price": 13.95
+      },
+      {
+        "dishName": "Cold: Essence of Fresh Vegetable in Jelly",
+        "price": 13.46
+      },
+      {
+        "dishName": "(Hard or Soft Biscuits Served with All Cheese Orders)",
+        "price": 10.09
+      },
+      {
+        "dishName": "Sauce Fleurette",
+        "price": 13.9
+      }
+    ],
+    "openingHours": "Mon 5:15 am - 4:30 pm / Tues, Sun 12 pm - 6 pm / Weds 1 pm - 3:15 pm / Thurs 7:30 am - 11:45 pm / Fri 10 am - 10:30 pm / Sat 7:15 am - 3:45 pm",
+    "restaurantName": "Rooftoop at E11EVEN"
+  },
+  {
+    "cashBalance": 4483.65,
+    "menu": [
+      {
+        "dishName": "savarin chantilly",
+        "price": 10.25
+      },
+      {
+        "dishName": "TODAY'S SPECIAL - VOL AU VENT OF SWEETBREAD KOSSUTH",
+        "price": 12.65
+      },
+      {
+        "dishName": "Soup",
+        "price": 12.16
+      },
+      {
+        "dishName": "Gebr. Seezungen",
+        "price": 11.49
+      },
+      {
+        "dishName": "Algerienne salad",
+        "price": 13.64
+      },
+      {
+        "dishName": "Pate Parfait",
+        "price": 10.96
+      },
+      {
+        "dishName": "Homard à la nage ou à votre goût",
+        "price": 12.17
+      },
+      {
+        "dishName": "Treasures from the Farm- Served with a Baked Potato or Savannah Red Rice",
+        "price": 10.87
+      },
+      {
+        "dishName": "Jack o' Lantern Salad",
+        "price": 12.29
+      },
+      {
+        "dishName": "HaselnuBeis mit heiBen Himbeeren",
+        "price": 10.69
+      },
+      {
+        "dishName": "Ober Seltzer",
+        "price": 10.4
+      },
+      {
+        "dishName": "Hamburger Roast Spinach",
+        "price": 10.15
+      }
+    ],
+    "openingHours": "Mon, Thurs 3 pm - 1:45 am / Tues 8 am - 3 pm / Weds, Sat 8:45 am - 3:45 am / Fri 4 pm - 2:45 am / Sun 5:45 pm - 7:15 pm",
+    "restaurantName": "Room 39 - Leawood"
+  }
+]

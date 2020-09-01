@@ -87,9 +87,9 @@ public class WebFluxExceptionHandler extends WebFluxResponseStatusExceptionHandl
 
     private boolean setResponseStatus(ServerHttpResponse response, Throwable ex) {
         boolean result = false;
-        HttpStatus status = determineStatus(ex);
-        if (status != null) {
-            if (response.setStatusCode(status)) {
+        int code = determineRawStatusCode(ex);
+        if (code != -1) {
+            if (response.setRawStatusCode(code)) {
                 if (ex instanceof ResponseStatusException) {
                     ((ResponseStatusException) ex).getResponseHeaders()
                             .forEach((name, values) ->

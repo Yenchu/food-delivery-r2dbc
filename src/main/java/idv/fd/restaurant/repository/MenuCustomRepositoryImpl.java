@@ -3,8 +3,9 @@ package idv.fd.restaurant.repository;
 import idv.fd.restaurant.dto.DishInfo;
 import idv.fd.restaurant.dto.DishNumb;
 import idv.fd.restaurant.model.Menu;
+import io.r2dbc.spi.ConnectionFactory;
 import io.r2dbc.spi.Row;
-import org.springframework.data.r2dbc.core.DatabaseClient;
+import org.springframework.r2dbc.core.DatabaseClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -58,22 +59,21 @@ public class MenuCustomRepositoryImpl implements MenuCustomRepository {
 
     private DatabaseClient client;
 
-    public MenuCustomRepositoryImpl(DatabaseClient client) {
-        this.client = client;
+    public MenuCustomRepositoryImpl(ConnectionFactory connectionFactory) {
+        this.client = DatabaseClient.create(connectionFactory);
     }
 
     public Mono<Menu> findMenuByIdLocked(Long id) {
 
-        return client.execute(findMenuByIdLocked)
+        return client.sql(findMenuByIdLocked)
                 .bind("id", id)
-                .as(Menu.class)
-                .fetch()
+                .map(mapMenu())
                 .one();
     }
 
     public Flux<DishInfo> findByDishNameContaining(String dishName) {
 
-        return client.execute(findByDishNameContaining)
+        return client.sql(findByDishNameContaining)
                 .bind("dishName", dishName)
                 .map(mapDishInfo())
                 .all();
@@ -82,7 +82,7 @@ public class MenuCustomRepositoryImpl implements MenuCustomRepository {
     public Flux<DishInfo> findByPriceGreaterThanEqualAndPriceLessThanEqual(
             BigDecimal minPrice, BigDecimal maxPrice, String sortField) {
 
-        return client.execute(findByPriceGreaterThanEqualAndPriceLessThanEqual)
+        return client.sql(findByPriceGreaterThanEqualAndPriceLessThanEqual)
                 .bind("minPrice", minPrice)
                 .bind("maxPrice", maxPrice)
                 .bind("sortField", sortField)
@@ -92,7 +92,7 @@ public class MenuCustomRepositoryImpl implements MenuCustomRepository {
 
     public Flux<DishNumb> findByDishesLessThan(int dishNumb) {
 
-        return client.execute(findByDishesLessThan)
+        return client.sql(findByDishesLessThan)
                 .bind("dishNumb", dishNumb)
                 .map(mapDishNumb())
                 .all();
@@ -101,7 +101,7 @@ public class MenuCustomRepositoryImpl implements MenuCustomRepository {
 
     public Flux<DishNumb> findByDishesGreaterThan(int dishNumb) {
 
-        return client.execute(findByDishesGreaterThan)
+        return client.sql(findByDishesGreaterThan)
                 .bind("dishNumb", dishNumb)
                 .map(mapDishNumb())
                 .all();
@@ -109,7 +109,7 @@ public class MenuCustomRepositoryImpl implements MenuCustomRepository {
 
     public Flux<DishNumb> findByDishesLessThanAndWithinPrices(int dishNumb, BigDecimal minPrice, BigDecimal maxPrice) {
 
-        return client.execute(findByDishesLessThanAndWithinPrices)
+        return client.sql(findByDishesLessThanAndWithinPrices)
                 .bind("minPrice", minPrice)
                 .bind("maxPrice", maxPrice)
                 .bind("dishNumb", dishNumb)
@@ -119,12 +119,22 @@ public class MenuCustomRepositoryImpl implements MenuCustomRepository {
 
     public Flux<DishNumb> findByDishesGreaterThanAndWithinPrices(int dishNumb, BigDecimal minPrice, BigDecimal maxPrice) {
 
-        return client.execute(findByDishesGreaterThanAndWithinPrices)
+        return client.sql(findByDishesGreaterThanAndWithinPrices)
                 .bind("minPrice", minPrice)
                 .bind("maxPrice", maxPrice)
                 .bind("dishNumb", dishNumb)
                 .map(mapDishNumb())
                 .all();
+    }
+
+    protected Function<Row, Menu> mapMenu() {
+
+        return row -> Menu.builder()
+                .id(row.get("id", Long.class))
+                .restaurantId(row.get("restaurantId", Long.class))
+                .dishName(row.get("dishName", String.class))
+                .price(row.get("price", BigDecimal.class))
+                .build();
     }
 
     protected Function<Row, DishInfo> mapDishInfo() {

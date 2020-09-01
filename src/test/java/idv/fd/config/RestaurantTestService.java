@@ -4,7 +4,6 @@ import idv.fd.restaurant.dto.EditRestaurant;
 import idv.fd.restaurant.model.Restaurant;
 import idv.fd.restaurant.repository.RestaurantRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.r2dbc.core.DatabaseClient;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
@@ -16,11 +15,8 @@ public class RestaurantTestService {
 
     private RestaurantRepository restaurantRepository;
 
-    private DatabaseClient databaseClient;
-
-    public RestaurantTestService(RestaurantRepository restaurantRepository, DatabaseClient databaseClient) {
+    public RestaurantTestService(RestaurantRepository restaurantRepository) {
         this.restaurantRepository = restaurantRepository;
-        this.databaseClient = databaseClient;
     }
 
     @Transactional
@@ -41,7 +37,7 @@ public class RestaurantTestService {
             try {
                 TimeUnit.SECONDS.sleep(3);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                log.error(e.getMessage(), e);
             }
             r.setName(editRest.getRestaurantName());
             return restaurantRepository.save(r);

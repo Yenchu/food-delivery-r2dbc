@@ -7,17 +7,13 @@ DB_ADDRESS: 127.0.0.1:3306
 DB_URL: r2dbc:pool:mysql://${DB_ADDRESS}/demo
 DB_USERNAME: root
 DB_PASSWORD: root
-#DB_URL: jdbc:postgresql://127.0.0.1:5432/demo
-#DB_USERNAME: postgres
-#DB_PASSWORD: postgres
-DDL_AUTO: none
 
 logging:
   file:
     name: ./log/fd.log
   level:
     idv: DEBUG
-    org.springframework.data.r2dbc: DEBUG
+    org.springframework.r2dbc: DEBUG
 
 management:
   endpoints:

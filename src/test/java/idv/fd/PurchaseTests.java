@@ -57,7 +57,7 @@ public class PurchaseTests {
     }
 
     @Test
-    @Transactional
+    //@Transactional
     public void purchaseDish() {
 
         Long userId = 1L;

@@ -2,8 +2,9 @@ package idv.fd.restaurant.repository;
 
 import idv.fd.restaurant.dto.RestaurantInfo;
 import idv.fd.restaurant.dto.WeekOpenPeriod;
+import io.r2dbc.spi.ConnectionFactory;
 import io.r2dbc.spi.Row;
-import org.springframework.data.r2dbc.core.DatabaseClient;
+import org.springframework.r2dbc.core.DatabaseClient;
 import reactor.core.publisher.Flux;
 
 import java.util.function.Function;
@@ -44,13 +45,13 @@ public class OpenHoursCustomRepositoryImpl implements OpenHoursCustomRepository 
 
     private DatabaseClient client;
 
-    public OpenHoursCustomRepositoryImpl(DatabaseClient client) {
-        this.client = client;
+    public OpenHoursCustomRepositoryImpl(ConnectionFactory connectionFactory) {
+        this.client = DatabaseClient.create(connectionFactory);
     }
 
     public Flux<RestaurantInfo> findRestaurantsByTime(int time) {
 
-        return client.execute(findRestaurantsByTime)
+        return client.sql(findRestaurantsByTime)
                 .bind("time", time)
                 .map(mapRestaurantInfo())
                 .all();
@@ -58,7 +59,7 @@ public class OpenHoursCustomRepositoryImpl implements OpenHoursCustomRepository 
 
     public Flux<RestaurantInfo> findRestaurantsByDayAndTime(int dayOfWeek, int time) {
 
-        return client.execute(findRestaurantsByDayAndTime)
+        return client.sql(findRestaurantsByDayAndTime)
                 .bind("dayOfWeek", dayOfWeek)
                 .bind("time", time)
                 .map(mapRestaurantInfo())
@@ -67,7 +68,7 @@ public class OpenHoursCustomRepositoryImpl implements OpenHoursCustomRepository 
 
     public Flux<RestaurantInfo> findOpenPeriodLessThan(int minutes) {
 
-        return client.execute(findOpenPeriodLessThan)
+        return client.sql(findOpenPeriodLessThan)
                 .bind("minutes", minutes)
                 .map(mapRestaurantInfo())
                 .all();
@@ -75,7 +76,7 @@ public class OpenHoursCustomRepositoryImpl implements OpenHoursCustomRepository 
 
     public Flux<RestaurantInfo> findOpenPeriodGreaterThan(int minutes) {
 
-        return client.execute(findOpenPeriodGreaterThan)
+        return client.sql(findOpenPeriodGreaterThan)
                 .bind("minutes", minutes)
                 .map(mapRestaurantInfo())
                 .all();
@@ -83,7 +84,7 @@ public class OpenHoursCustomRepositoryImpl implements OpenHoursCustomRepository 
 
     public Flux<WeekOpenPeriod> findWeekOpenPeriodLessThan(int minutes) {
 
-        return client.execute(findWeekOpenPeriodLessThan)
+        return client.sql(findWeekOpenPeriodLessThan)
                 .bind("minutes", minutes)
                 .map(mapWeekOpenPeriod())
                 .all();
@@ -91,7 +92,7 @@ public class OpenHoursCustomRepositoryImpl implements OpenHoursCustomRepository 
 
     public Flux<WeekOpenPeriod> findWeekOpenPeriodGreaterThan(int minutes) {
 
-        return client.execute(findWeekOpenPeriodGreaterThan)
+        return client.sql(findWeekOpenPeriodGreaterThan)
                 .bind("minutes", minutes)
                 .map(mapWeekOpenPeriod())
                 .all();

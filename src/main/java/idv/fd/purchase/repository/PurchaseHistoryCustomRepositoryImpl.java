@@ -4,8 +4,9 @@ import idv.fd.purchase.dto.Count;
 import idv.fd.purchase.dto.RestaurantTxAmount;
 import idv.fd.purchase.dto.TxNumbAmount;
 import idv.fd.purchase.dto.UserTxAmount;
+import io.r2dbc.spi.ConnectionFactory;
 import io.r2dbc.spi.Row;
-import org.springframework.data.r2dbc.core.DatabaseClient;
+import org.springframework.r2dbc.core.DatabaseClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -53,13 +54,13 @@ public class PurchaseHistoryCustomRepositoryImpl implements PurchaseHistoryCusto
 
     private DatabaseClient client;
 
-    public PurchaseHistoryCustomRepositoryImpl(DatabaseClient client) {
-        this.client = client;
+    public PurchaseHistoryCustomRepositoryImpl(ConnectionFactory connectionFactory) {
+        this.client = DatabaseClient.create(connectionFactory);
     }
 
     public Flux<UserTxAmount> findTopTxUsers(int top, Instant fromDate, Instant toDate) {
 
-        return client.execute(findTopTxUsers)
+        return client.sql(findTopTxUsers)
                 .bind("top", top)
                 .bind("fromDate", fromDate)
                 .bind("toDate", toDate)
@@ -69,7 +70,7 @@ public class PurchaseHistoryCustomRepositoryImpl implements PurchaseHistoryCusto
 
     public Flux<TxNumbAmount> findTxNumbAmount(Instant fromDate, Instant toDate) {
 
-        return client.execute(findTxNumbAmount)
+        return client.sql(findTxNumbAmount)
                 .bind("fromDate", fromDate)
                 .bind("toDate", toDate)
                 .map(mapTxNumbAmount())
@@ -78,21 +79,21 @@ public class PurchaseHistoryCustomRepositoryImpl implements PurchaseHistoryCusto
 
     public Flux<RestaurantTxAmount> findMaxTxNumbRestaurants() {
 
-        return client.execute(findMaxTxNumbRestaurants)
-                .map(mapRestaurantTxAmount())
+        return client.sql(findMaxTxNumbRestaurants)
+                .map(mapRestaurantTxNumb())
                 .all();
     }
 
     public Flux<RestaurantTxAmount> findMaxTxAmountRestaurants() {
 
-        return client.execute(findMaxTxAmountRestaurants)
+        return client.sql(findMaxTxAmountRestaurants)
                 .map(mapRestaurantTxAmount())
                 .all();
     }
 
     public Mono<Count> countTxAmountLessThan(BigDecimal amount, Instant fromDate, Instant toDate) {
 
-        return client.execute(countTxAmountLessThan)
+        return client.sql(countTxAmountLessThan)
                 .bind("amount", amount)
                 .bind("fromDate", fromDate)
                 .bind("toDate", toDate)
@@ -102,7 +103,7 @@ public class PurchaseHistoryCustomRepositoryImpl implements PurchaseHistoryCusto
 
     public Mono<Count> countTxAmountGreaterThan(BigDecimal amount, Instant fromDate, Instant toDate) {
 
-        return client.execute(countTxAmountGreaterThan)
+        return client.sql(countTxAmountGreaterThan)
                 .bind("amount", amount)
                 .bind("fromDate", fromDate)
                 .bind("toDate", toDate)

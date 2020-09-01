@@ -2,11 +2,13 @@ package idv.fd.restaurant.repository;
 
 import idv.fd.restaurant.dto.RestaurantInfo;
 import idv.fd.restaurant.model.Restaurant;
+import io.r2dbc.spi.ConnectionFactory;
 import io.r2dbc.spi.Row;
-import org.springframework.data.r2dbc.core.DatabaseClient;
+import org.springframework.r2dbc.core.DatabaseClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.math.BigDecimal;
 import java.util.function.Function;
 
 public class RestaurantCustomRepositoryImpl implements RestaurantCustomRepository {
@@ -23,25 +25,33 @@ public class RestaurantCustomRepositoryImpl implements RestaurantCustomRepositor
 
     private DatabaseClient client;
 
-    public RestaurantCustomRepositoryImpl(DatabaseClient client) {
-        this.client = client;
+    public RestaurantCustomRepositoryImpl(ConnectionFactory connectionFactory) {
+        this.client = DatabaseClient.create(connectionFactory);
     }
 
     public Mono<Restaurant> findRestaurantByIdLocked(Long id) {
 
-        return client.execute(findRestaurantByIdLocked)
+        return client.sql(findRestaurantByIdLocked)
                 .bind("id", id)
-                .as(Restaurant.class)
-                .fetch()
+                .map(mapRestaurant())
                 .one();
     }
 
     public Flux<RestaurantInfo> findByNameContaining(String name) {
 
-        return client.execute(findByNameContaining)
+        return client.sql(findByNameContaining)
                 .bind("name", name)
                 .map(mapRestaurantInfo())
                 .all();
+    }
+
+    protected Function<Row, Restaurant> mapRestaurant() {
+
+        return row -> Restaurant.builder()
+                .id(row.get("id", Long.class))
+                .name(row.get("name", String.class))
+                .cashBalance(row.get("cash_balance", BigDecimal.class))
+                .build();
     }
 
     protected Function<Row, RestaurantInfo> mapRestaurantInfo() {

@@ -3,6 +3,7 @@ package idv.fd.user.repository;
 import idv.fd.user.model.User;
 import io.r2dbc.spi.ConnectionFactory;
 import io.r2dbc.spi.Row;
+import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
 import org.springframework.r2dbc.core.DatabaseClient;
 import reactor.core.publisher.Mono;
 
@@ -18,8 +19,20 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
 
     private DatabaseClient client;
 
-    public UserCustomRepositoryImpl(ConnectionFactory connectionFactory) {
+    private R2dbcEntityTemplate template;
+
+    public UserCustomRepositoryImpl(ConnectionFactory connectionFactory, R2dbcEntityTemplate template) {
         this.client = DatabaseClient.create(connectionFactory);
+        this.template = template;
+    }
+
+    /**
+     * Currently R2DBC repository save() doesn't support self-assigned @Id.
+     * @param user
+     * @return
+     */
+    public Mono<User> createUser(User user) {
+        return template.insert(user);
     }
 
     public Mono<User> findUserByIdLocked(Long id) {

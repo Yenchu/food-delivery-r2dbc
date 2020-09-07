@@ -5,6 +5,8 @@ import reactor.core.publisher.Mono;
 
 public interface UserCustomRepository {
 
+    Mono<User> createUser(User user);
+
     Mono<User> findUserByIdLocked(Long id);
 
 }

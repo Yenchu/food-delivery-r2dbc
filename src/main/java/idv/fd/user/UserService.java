@@ -37,6 +37,12 @@ public class UserService {
     }
 
     @Transactional
+    public Mono<User> createUser(User user) {
+
+        return userRepository.createUser(user);
+    }
+
+    @Transactional
     public Mono<User> saveUser(User user) {
 
         return userRepository.save(user);

@@ -23,17 +23,17 @@ public class RestaurantTestService {
     public Mono<Restaurant> updateRestaurant(EditRestaurant editRest) {
 
         return restaurantRepository.findById(editRest.getRestaurantId()).flatMap(r -> {
-            log.debug("** update restaurant");
+            log.debug("** update restaurant in {}", Thread.currentThread());
             r.setName(editRest.getRestaurantName());
             return restaurantRepository.save(r);
         });
     }
 
     @Transactional(isolation = Isolation.REPEATABLE_READ)
-    public Mono<Restaurant> updateRestaurantSleepy(EditRestaurant editRest) {
+    public Mono<Restaurant> updateRestaurantLocked(EditRestaurant editRest) {
 
         return restaurantRepository.findRestaurantByIdLocked(editRest.getRestaurantId()).flatMap(r -> {
-            log.debug("@@ update & lock restaurant");
+            log.debug("@@ update & lock restaurant in {}", Thread.currentThread());
             try {
                 TimeUnit.SECONDS.sleep(3);
             } catch (InterruptedException e) {

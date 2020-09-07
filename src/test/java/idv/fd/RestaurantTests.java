@@ -42,11 +42,11 @@ public class RestaurantTests {
         // 024 Grille
         restaurantService.findRestaurantById(id).doOnNext(r -> log.debug("restaurant: {}", r.getName())).block();
 
-        Thread t = new Thread(() -> restaurantTestService.updateRestaurantSleepy(EditRestaurant.builder()
+        Thread t = new Thread(() -> restaurantTestService.updateRestaurantLocked(EditRestaurant.builder()
                 .restaurantId(id)
                 .restaurantName("==Sleepy==")
                 .build())
-                .subscribeOn(Schedulers.boundedElastic())
+                //.subscribeOn(Schedulers.boundedElastic())
                 .subscribe(r -> log.debug("update 1: {}", r.getName())));
         t.start();
 
@@ -54,6 +54,7 @@ public class RestaurantTests {
                 .restaurantId(id)
                 .restaurantName("024 Grille")
                 .build())
+                //.subscribeOn(Schedulers.boundedElastic())
                 .subscribe(r -> log.debug("update 2: {}", r.getName())));
         t2.start();
 
